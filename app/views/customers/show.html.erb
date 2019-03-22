@@ -1,0 +1,60 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @customer.name %>
+</p>
+
+<p>
+  <strong>Contracts:</strong><br />
+
+  <!-- Loop on each attached contract -->
+  <% @customer.contracts.each do |contract| %>
+    <!-- Display attachment id and filename -->
+    #<%= contract.id %>: <%= contract.filename %><br />
+
+    <!-- Display the image in a resized format -->
+    <%= image_tag(contract.representation(resize: '300x300').processed)  %>
+    <br />
+
+    <!-- Link to download the image in its original size -->
+    <!-- This is a redirection link that should be valid 5 minutes -->
+    <%= link_to 'Download file', rails_blob_path(contract, disposition: 'attachment') %>
+    <br />
+
+    <!-- Display some information about the file -->
+    <p>
+      <strong>Metadata:</strong><br /><%= contract.metadata %><br />
+      <strong>Byte size:</strong><br /><%= contract.byte_size %><br />
+    </p>
+  <% end %>
+</p>
+
+<!-- This is a block that allows the user to manually choose which files to delete -->
+<% if @customer.contracts.attached? %>
+  <div style="background-color: #ccc; padding: 15px">
+    <p>Delete contracts:</p>
+
+    <%= form_for @customer do |f| %>
+      <% @customer.contracts.each do |contract| %>
+
+	<!-- For each contract, we call `fields_for` and add two elements to the form content: -->
+	<!-- 1. the id of the contract -->
+	<!-- 2. a checkbox that lets the user decide whether or not to delete this contract -->
+	<!-- We also display here a thumbnail of the contract instead of a label. Personal choice. -->
+	<%= f.fields_for :contracts_attachments_attributes do |contract_form| %>
+	  <%= contract_form.hidden_field :id, value: contract.id %>
+	  <%= contract_form.check_box :_destroy %>
+	  <%= image_tag(contract.representation(resize: '50x50').processed)  %>
+	  <br />
+	<% end %>
+
+      <% end %>
+      <%= f.submit "Delete contracts" %>
+    <% end %>
+
+  </div>
+<% end %>
+
+<%= link_to 'Edit', edit_customer_path(@customer) %> |
+<%= link_to 'Back', customers_path %>

@@ -1,0 +1,41 @@
+<%= form_with(model: profile, local: true) do |form| %>
+  <% if profile.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(profile.errors.count, "error") %> prohibited this profile from being saved:</h2>
+
+      <ul>
+      <% profile.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :last_name %>
+    <%= form.text_field :last_name %>
+  </div>
+
+  <div class="field">
+    <%= form.label :first_name %>
+    <%= form.text_field :first_name %>
+  </div>
+
+  <div class="field">
+    <%= form.label :avatar %>
+    <!-- Upload an avatar -->
+    <%= form.file_field :avatar %>
+
+    <!-- Avoid raising errors by manipulating an avatar that does not exist or that is not representable (meaning ActiveStorage wouldn't know how to generate a thumbnail out of it) -->
+    <% if profile.avatar.attached? && profile.avatar.representable? %>
+      <br />
+      <!-- Display a thumbnail of the uploaded file when validations fail and form is re-rendered -->
+      <!-- We use #processed to generate the resized version only once and reuse it as many times as necessary -->
+      <%= image_tag(profile.avatar.representation(resize: '250x250').processed) %>
+    <% end %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

@@ -1,0 +1,46 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Last name:</strong>
+  <%= @profile.last_name %>
+</p>
+
+<p>
+  <strong>First name:</strong>
+  <%= @profile.first_name %>
+</p>
+
+<p>
+  <strong>Avatar:</strong><br />
+
+  <!-- Avoid raising errors by manipulating an avatar that does not exist -->
+  <% if @profile.avatar.attached? %>
+
+    <!-- Display the image in its original size -->
+    <%= image_tag(@profile.avatar)  %>
+    <br />
+
+    <!-- Link to download the image in its original size -->
+    <!-- This is a redirection link that should be valid 5 minutes -->
+    <%= link_to 'Download file', rails_blob_path(@profile.avatar, disposition: 'attachment') %>
+    <br />
+
+    <!-- Button to destroy the image using `accepts_nested_attributes_for` feature -->
+    <%= form_for @profile do |f| %>
+      <%= f.fields_for :avatar_attachment_attributes do |avatar_form| %>
+	<%= avatar_form.hidden_field :id, value: @profile.avatar_attachment.id %>
+	<%= avatar_form.hidden_field :_destroy, value: true %>
+      <% end %>
+      <%= f.submit "Delete avatar" %>
+    <% end %>
+
+    <!-- Display some information about the file -->
+    <p>
+      <strong>Metadata:</strong><br /><%= @profile.avatar.metadata %><br />
+      <strong>Byte size:</strong><br /><%= @profile.avatar.byte_size %><br />
+    </p>
+  <% end %>
+</p>
+
+<%= link_to 'Edit', edit_profile_path(@profile) %> |
+<%= link_to 'Back', profiles_path %>
